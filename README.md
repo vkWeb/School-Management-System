@@ -1,2 +1,4 @@
 # school-management-system
-An advanced school management system built with C++ as a school project. 
+> This project is a work in progress. 
+
+We are going to build an advanced school management system with C++ for our school project. 
