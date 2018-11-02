@@ -1,1 +1,12 @@
-//The adventure will start soon!
+/* 
+The adventure will start soon!
+*/
+
+#include <iostream.h>
+
+using namespace std;
+
+int main()
+{
+  cout<<"Hello World";
+}
