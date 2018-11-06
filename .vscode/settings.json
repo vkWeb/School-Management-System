@@ -4,5 +4,30 @@
   "editor.tabSize": 2,
   "editor.wordWrap": "on",
   "files.insertFinalNewline": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "*.tcc": "cpp",
+    "cctype": "cpp",
+    "clocale": "cpp",
+    "cstdint": "cpp",
+    "cstdio": "cpp",
+    "cstdlib": "cpp",
+    "cwchar": "cpp",
+    "cwctype": "cpp",
+    "exception": "cpp",
+    "fstream": "cpp",
+    "initializer_list": "cpp",
+    "iosfwd": "cpp",
+    "iostream": "cpp",
+    "istream": "cpp",
+    "limits": "cpp",
+    "new": "cpp",
+    "ostream": "cpp",
+    "stdexcept": "cpp",
+    "streambuf": "cpp",
+    "system_error": "cpp",
+    "type_traits": "cpp",
+    "typeinfo": "cpp"
+  },
+  "files.autoSave": "onFocusChange"
 }
