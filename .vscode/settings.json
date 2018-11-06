@@ -5,6 +5,7 @@
   "editor.wordWrap": "on",
   "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
+  "files.autoSave": "onFocusChange",
   "files.associations": {
     "*.tcc": "cpp",
     "cctype": "cpp",
@@ -28,6 +29,5 @@
     "system_error": "cpp",
     "type_traits": "cpp",
     "typeinfo": "cpp"
-  },
-  "files.autoSave": "onFocusChange"
+  }
 }
