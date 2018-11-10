@@ -4,6 +4,33 @@ using namespace std;
  * Header files 
  */
 #include <iostream> //For basic input/output operations
+#include <string>
+
+class Student
+{
+private:
+  int rollNumber, admissionNumber;
+  string studentName, motherName, fatherName;
+
+public:
+  void inputStudentDetails();
+};
+
+void Student::inputStudentDetails()
+{
+  cout << "\nEnter student name: ";
+  getline(cin, studentName);
+  cout << "Enter student's father's name: ";
+  getline(cin, fatherName);
+  cout << "Enter student's mother's name: ";
+  getline(cin, motherName);
+}
+
+void addStudent()
+{
+  Student schoolStudent;
+  schoolStudent.inputStudentDetails();
+}
 
 /**
  * Displays home screen only if the administrator has entered the correct credentials
@@ -28,4 +55,5 @@ void displayHomeScreen()
 int main()
 {
   displayHomeScreen();
+  addStudent();
 }
