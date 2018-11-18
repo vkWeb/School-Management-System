@@ -1,10 +1,9 @@
-using namespace std;
-
 /**
  * Header files 
  */
 #include <iostream> //For basic input/output operations
-#include <string>
+
+using namespace std;
 
 class Student
 {
