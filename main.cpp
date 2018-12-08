@@ -6,7 +6,6 @@
 #include <fstream>  //For data file handling
 
 using namespace std; //Declares std namespace as per latest C++ standard
-int generateRollNumber();
 
 /**
  * Student class has all the data members and required functions for students
