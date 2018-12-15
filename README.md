@@ -46,7 +46,7 @@ Open your cloned folder in VSCode as an administrator. You can run your code by 
 
 ```bash
 #Compiles the source file and converts object file to executable
-$ g++ main.cpp -o app
+$ g++ -g main.cpp -o app
 #Runs the executable
 $ ./app
 ```
