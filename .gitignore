@@ -1,0 +1,2 @@
+# git will ignore all executables
+*.exe

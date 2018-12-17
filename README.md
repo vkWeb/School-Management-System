@@ -15,7 +15,7 @@ We are going to build an advanced school management system with C++ for our scho
 **Step 2:** Clone this repository to your local machine by typing the below command in Git bash:
 
 ```bash
-#This command will clone this git repo
+# this command will clone this git repo
 $ git clone https://github.com/vkWeb/school-management-system.git
 ```
 
@@ -30,11 +30,11 @@ Before you start writing code, you should always create a new branch to maintain
 **Step 4:** **Always remember to update your local copy before creating a new branch!** You can do it by typing:
 
 ```bash
-#Switches to master branch
+# switches to master branch
 $ git checkout master
-#Updates your local copy to the latest version
+# updates your local copy to the latest version
 $ git pull origin master
-#Creates a new branch, remember to give it a descriptive name
+# creates a new branch, remember to give it a descriptive name
 $ git checkout -b yourBranchName
 ```
 
@@ -45,9 +45,9 @@ A compiler is a must to compile code. So lets set-up a compiler before writing a
 Open your cloned folder in VSCode as an administrator. You can run your code by typing the below commands in VSCode's integrated terminal (you can open it by typing `` (ctrl + `) ``:
 
 ```bash
-#Compiles the source file and converts object file to executable
+# compiles the source file and converts object file to executable
 $ g++ main.cpp -o app
-#Runs the executable
+# runs the executable
 $ ./app
 ```
 
@@ -58,18 +58,18 @@ When you feel confident with your code, you can push it to GitHub (often referre
 **Step 6:** You should often check the status of your local copy, it tells you about the modified files and the branch you are in. You can check status by typing:
 
 ```bash
-#Tells you the status of your local copy and the branch you are in
+# tells you the status of your local copy and the branch you are in
 $ git status
 ```
 
 Now, lets add files for commit and push them to GitHub.
 
 ```bash
-#Adds the files you want to commit, often they will be main.cpp and app.exe
-$ git add main.cpp app.exe
-#Commits the files
+# adds the files you want to commit, often it will be main.cpp only
+$ git add main.cpp
+# commits the files
 $ git commit -m "Put here a descriptive message of the changes you made"
-#Pushes your code to GitHub
+# pushes your code to GitHub
 $ git push origin yourBranchName
 ```
 
