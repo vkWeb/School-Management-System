@@ -114,13 +114,13 @@ $ git commit -m "Put here a descriptive message of the changes you made"
 $ git push origin yourBranchName
 ```
 
+![recently pushed branch](docs_assets/recently_pushed_branch.png)
+
 **Step 9:** Open https://github.com/YOUR_USERNAME/school-management-system.git in your browser and click on `Compare & pull request` to create a new pull request.
 
-![recently pushed branch](assets/recently_pushed_branch.png)
+![pull request send](docs_assets/pr-send.png)
 
 Now, describe the changes you made then click on `Create pull request` and wait for your glory :tada:!
-
-![pull request send](assets/pr-send.png)
 
 If you need any help in setting up the project or if you are stuck somewhere then you can [open an issue](https://github.com/vkWeb/school-management-system/issues/new). I will try my best to resolve it.
 
