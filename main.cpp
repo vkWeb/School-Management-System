@@ -1,14 +1,10 @@
-/**
- * Header files 
- */
-#include <iostream> // for basic input and output operations e.g. cin, cout, etc.
-#include <fstream>  // for data file handling
+#include <iostream>          // for basic I/O operations e.g. cin, cout, etc.
+#include <fstream>           // for data file handling
+#include <string.h>          // for strcmp()
+#include "utils/utilities.h" // contains utils required for proper I/O
 
-using namespace std; // declares std namespace. so, we don't need to add 'std::' before cout, cin and other standard library methods
+using namespace std; // we don't need to add 'std::' before cout, cin and other standard library methods
 
-/**
- * Student class has all the data members and required member functions for students
- */
 class Student
 {
 private:
@@ -98,33 +94,88 @@ void addStudent()
 class Teacher
 {
 private:
-  string name, subject, qualification;
-  short experience, classTaught;
+  string teacherName, teacherQualification;
+  short teacherExperience, teacherClass;
+  char teacherSubject[11], teacherId[5];
 
 public:
   void inputTeacherDetails();
-  int generateTeacherID();
+  void generateTeacherId();
 };
 
-int Teacher::generateTeacherID() { return 0; };
+void Teacher::generateTeacherId()
+{
+  Teacher schoolTeacherRead;
+  fstream teacherFile("data/teacher.dat", ios::in | ios::out | ios::app | ios::binary);
+  short flag = 0, id = 0;
+
+  while (teacherFile.read((char *)&schoolTeacherRead, sizeof(schoolTeacherRead)))
+  {
+    flag++;
+    if (strcmp(teacherSubject, schoolTeacherRead.teacherSubject) == 0)
+    {
+      id++;
+    }
+  }
+
+  if (id == 0 || flag == 0) // flag = 0 indicates empty file and id = 0 indicates no subject match found
+  {
+    newTeacherId(teacherId, teacherSubject);
+  }
+
+  if (id != 0)
+  {
+    for (int i = 0, j = 48; i < 5; i++) // in ascii chart 48 = '0'
+    {
+      if (i < 3)
+      {
+        teacherId[i] = toupper(teacherSubject[i]);
+      }
+      else
+      {
+        if (((id % 10) == 9) && i == 3)
+        {
+          teacherId[i] = j + ((id / 10) + 1);
+          i++;
+          teacherId[i] = j;
+        }
+        else if (i == 3)
+        {
+          teacherId[i] = j + (id / 10);
+          i++;
+          teacherId[i] = j + ((id % 10) + 1);
+        }
+      }
+    }
+  }
+}
 
 void Teacher::inputTeacherDetails()
 {
   system("cls");
-  cout << "\nEnter teacher name (max. 28 characters): ";
+  cout << "\nEnter teacher name: ";
   cin.ignore();
-  getline(cin, name);
+  getline(cin, teacherName);
+
   cout << "Enter the class to be taught (1 to 12): ";
-  cin >> classTaught;
+  cin >> teacherClass;
+
   cout << "Enter the subject to be taught: ";
   cin.ignore();
-  getline(cin, subject);
+  gets(teacherSubject);
+  convertCharArrayToLower(teacherSubject, sizeof(teacherSubject));
+
   cout << "Enter teacher work experience (in years): ";
-  cin >> experience;
+  cin >> teacherExperience;
+
   cout << "Enter teacher educational qualification: ";
   cin.ignore();
-  getline(cin, qualification);
-  cout << "\nGenerated teacher ID is " << generateTeacherID() << ". Please note it in a safe place for future reference.";
+  getline(cin, teacherQualification);
+
+  cout << "\nGenerated teacher ID is ";
+  generateTeacherId();
+  displayCharArray(teacherId, sizeof(teacherId));
+  cout << ". Please note it in a safe place for future reference.";
 }
 
 void addTeacher()
@@ -137,8 +188,7 @@ void addTeacher()
 }
 
 /**
- * Displays home screen only if the administrator has entered the correct credentials
- * Note: Administrator is anyone using our school management system app
+ * Displays home screen
 */
 void HomeScreen()
 {

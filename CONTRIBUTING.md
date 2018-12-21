@@ -114,11 +114,11 @@ $ git commit -m "Put here a descriptive message of the changes you made"
 $ git push origin yourBranchName
 ```
 
-![recently pushed branch](docs_assets/recently_pushed_branch.png)
+![recently pushed branch](https://i.imgur.com/70U76Pu.png)
 
 **Step 9:** Open https://github.com/YOUR_USERNAME/school-management-system.git in your browser and click on `Compare & pull request` to create a new pull request.
 
-![pull request send](docs_assets/pr-send.png)
+![pull request send](https://i.imgur.com/Kc5zADr.png)
 
 Now, describe the changes you made then click on `Create pull request` and wait for your glory :tada:!
 
