@@ -1,5 +1,4 @@
 #include <iostream>
-
 using namespace std;
 
 void displayCharArray(char myArray[], short arraySize)
@@ -12,6 +11,12 @@ void convertCharArrayToLower(char myArray[], short arraySize)
 {
   for (int i = 0; i < arraySize; i++)
     myArray[i] = tolower(myArray[i]);
+}
+
+void convertCharArrayToUpper(char myArray[], short arraySize)
+{
+  for (int i = 0; i < arraySize; i++)
+    myArray[i] = toupper(myArray[i]);
 }
 
 void newTeacherId(char teacherId[], char teacherSubject[])
