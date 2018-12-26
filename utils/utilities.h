@@ -19,18 +19,41 @@ void convertCharArrayToUpper(char myArray[], short arraySize)
     myArray[i] = toupper(myArray[i]);
 }
 
-void newTeacherId(char teacherId[], char teacherSubject[])
+void validateCharInput(char &userInput, char expectedInput[], short expectedInputSize)
 {
-  for (int i = 0, j = 48; i < 5; i++)
+  short flag;
+  userInput = tolower(userInput);
+  do
   {
-    if (i < 3)
+    flag = 0;
+    for (short i = 0; i < expectedInputSize; i++)
     {
-      teacherId[i] = toupper(teacherSubject[i]);
+      if (userInput == expectedInput[i])
+      {
+        flag++;
+        break;
+      }
     }
-    else
+    if (flag == 0)
     {
-      teacherId[i] = j;
-      j++;
+      cout << "\nSorry, We received a wrong input. Please enter a valid choice: \n=> ";
+      cin >> userInput;
     }
+  } while (flag == 0);
+}
+
+void teacherSubjectCodeVerifier(short teacherSubjectCode[], short inputAtIndex)
+{
+  while (teacherSubjectCode[inputAtIndex] < 1 || teacherSubjectCode[inputAtIndex] > 5)
+  {
+    cout << "Sorry, we received a wrong subject code. Please enter subject code between 1 to 5: ";
+    cin >> teacherSubjectCode[inputAtIndex];
   }
+}
+
+void yesNoChoice(char &userInput)
+{
+  cin >> userInput;
+  char expectedInput[] = {'y', 'n'};
+  validateCharInput(userInput, expectedInput, 2);
 }
