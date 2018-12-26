@@ -1,3 +1,6 @@
+// This file contains functions required for proper I/O validation and functions which
+// will be called a lot of times
+
 #include <iostream>
 using namespace std;
 

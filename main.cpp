@@ -4,8 +4,10 @@
 #include <stdio.h>           // for remove() and rename()
 #include "utils/utilities.h" // contains utils required for proper I/O
 
-using namespace std; // we don't need to add 'std::' before standard library methods
+// we don't need to add 'std::' before standard library methods
+using namespace std;
 
+// --Everything for student Starts here--
 class Student
 {
 private:
@@ -14,7 +16,7 @@ private:
   string motherName, fatherName;
 
 public:
-  Student() // constructor
+  Student()
   {
     rollNumber = 1;
   }
@@ -25,10 +27,8 @@ public:
   int getStudentFee() { return studentFee; }
 };
 
-/**
- * Generate and return student roll number in format - 12252 which is equivalent to 12th 'B' 52
- * We generate roll number alphabetically by using the first four characters of name.
- */
+// Generate and return student roll number in format - 12252 which is equivalent to 12th 'B' 52
+// We generate roll number alphabetically by using the first four characters of name.
 void Student::generateRollNumber()
 {
   Student schoolStudentTemp;
@@ -66,10 +66,12 @@ void Student::generateRollNumber()
   }
 }
 
+// Inputs student details
 void Student::inputStudentDetails()
 {
   system("cls");
-  cin.ignore(); // fixes skipping of input; this must be used when `cin` precedes `getline()` or `cin.get()`
+  // fixes skipping of input; this must be used when `cin` precedes `getline()` or `cin.get()`
+  cin.ignore();
   cout << "\nEnter student name(max. 28 characters): ";
   gets(studentName);
   cout << "Enter the class(1 to 12): ";
@@ -88,6 +90,7 @@ void Student::inputStudentDetails()
   cout << "\nGenerated roll number is " << getRollNumber() << ". Please, note it safely as it'll be asked during data modification.";
 }
 
+// Asks roll number. If found then student is removed from file
 void removeStudent()
 {
   Student studentRead;
@@ -114,6 +117,7 @@ void removeStudent()
   rename("data/temp_student.dat", "data/student.dat");
 }
 
+// Adds student
 void addStudent()
 {
   Student schoolStudent;
@@ -123,6 +127,7 @@ void addStudent()
   studentFile.close();
 }
 
+// Receives student fee and deducts from the remaining
 void receiveStudentFee()
 {
   system("cls");
@@ -184,7 +189,9 @@ void receiveStudentFee()
   }
   studentFile.close();
 }
+// --Everything for student Ends here--
 
+// --Everything for teacher Starts here--
 class Teacher
 {
 private:
@@ -205,7 +212,9 @@ public:
   int getTeacherId() { return teacherId; }
 };
 
-/* Generates teacherId in format: first three digits are subject code of subject the teacher teaches and the last two digits are incremented when same subject set of teacher is found. For e.g. 12305 indicates that teacher teach subject codes 1, 2 & 3 and is the 5th teacher to teach the same three subjects in school */
+// Generates teacherId in format: first three digits are subject code of subject the teacher teaches and the last two digits are
+// incremented when same subject set of teacher is found. For e.g. 12305 indicates that teacher teach subject codes 1, 2 & 3 and
+// is the 5th teacher to teach the same three subjects in school.
 void Teacher::generateTeacherId()
 {
   Teacher schoolTeacherRead;
@@ -226,6 +235,7 @@ void Teacher::generateTeacherId()
   teacherId = (teacherSubjectCode[0] * 10000) + (teacherSubjectCode[1] * 1000) + (teacherSubjectCode[2] * 100) + id;
 }
 
+// Take all teacher inputs
 void Teacher::inputTeacherDetails()
 {
   system("cls");
@@ -319,7 +329,9 @@ void removeTeacher()
   remove("data/teacher.dat");
   rename("data/temp_teacher.dat", "data/teacher.dat");
 }
+// -- Everything for teacher Ends here --
 
+// Displays screen for removal of existing student, teacher ot staff
 void displayRemoveDataScreen()
 {
   system("cls");
@@ -343,6 +355,7 @@ void displayRemoveDataScreen()
   }
 }
 
+// Displays screen for addition of new student, teacher or staff
 void displayAddDataScreen()
 {
   system("cls");
@@ -366,9 +379,7 @@ void displayAddDataScreen()
   }
 }
 
-/**
- * Displays home screen
-*/
+// Displays home screen
 void HomeScreen()
 {
   system("cls");
@@ -415,15 +426,13 @@ void HomeScreen()
   case 'i':
     cout << "\nWork under progress...";
     break;
-  default: // default case will never get executed ;)
+  // Default case will never get executed ;)
+  default:
     cout << "\nWrong Input Received.";
   }
 }
 
-/**
- * main() starts here
-*/
-int main()
+int main(void)
 {
   HomeScreen();
 }
