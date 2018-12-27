@@ -1,10 +1,10 @@
-#include <iostream>          // for basic I/O operations e.g. cin, cout, etc.
-#include <fstream>           // for data file handling
-#include <string.h>          // for strcmp()
-#include <stdio.h>           // for remove() and rename()
-#include "utils/utilities.h" // contains utils required for proper I/O
+#include <iostream>          // For basic I/O operations e.g. cin, cout, etc.
+#include <fstream>           // For data file handling
+#include <string.h>          // For strcmp()
+#include <stdio.h>           // For remove() and rename()
+#include "utils/utilities.h" // Contain utils required for proper I/O
 
-// we don't need to add 'std::' before standard library methods
+// We don't need to add 'std::' before standard library methods
 using namespace std;
 
 // --Everything for student Starts here--
@@ -27,8 +27,10 @@ public:
   int getStudentFee() { return studentFee; }
 };
 
-// Generate and return student roll number in format - 12252 which is equivalent to 12th 'B' 52
-// We generate roll number alphabetically by using the first four characters of name.
+// Generate roll number by using class, section and first four characters of name.
+// Student roll number format is explained below:
+// First two digits is class, third digit is section and last two are alphabetical position of student in his/her class.
+// For e.g. 12252 is equivalent to class = 12th, section = 'B', alphabetical position = 52
 void Student::generateRollNumber()
 {
   Student schoolStudentTemp;
@@ -72,14 +74,14 @@ void Student::inputStudentDetails()
   system("cls");
   // fixes skipping of input; this must be used when `cin` precedes `getline()` or `cin.get()`
   cin.ignore();
-  cout << "\nEnter student name(max. 28 characters): ";
+  cout << "Enter student name (max. 28 characters): ";
   gets(studentName);
-  cout << "Enter the class(1 to 12): ";
+  cout << "Enter the class (1 to 12): ";
   cin >> studentClass;
-  cout << "Enter the section('A' to 'D'): ";
+  cout << "Enter the section ('A' to 'D'): ";
   cin.ignore();
   cin.get(studentSection);
-  cout << "Enter the annual fee student needs to pay(in Rs.): ";
+  cout << "Enter the annual fee student needs to pay (in Rs.): ";
   cin >> studentFee;
   cout << "Enter student father's name: ";
   cin.ignore();
@@ -128,15 +130,16 @@ void addStudent()
 }
 
 // Receives student fee and deducts from the remaining
+// Reflects the same in a data file
 void receiveStudentFee()
 {
   system("cls");
   Student schoolStudent;
-  int inputRollNumber = 0, amountToPay = 0, flag = 0;
+  int inputRollNumber = 0, amountPaid = 0;
+  short flag = 0;
   long filePosition = 0;
-  char inputChoice;
   fstream studentFile("data/student.dat", ios::in | ios::out | ios::binary);
-  cout << "Enter the roll number of student whose fees you want to receive(in Rs.): ";
+  cout << "Enter the roll number of student whose fees you want to receive: ";
   cin >> inputRollNumber;
   while (!studentFile.eof())
   {
@@ -150,42 +153,21 @@ void receiveStudentFee()
   }
   if (flag == 0)
     cout << "Sorry, Roll number not found.";
+  else if (schoolStudent.getStudentFee() == 0)
+    cout << "Congratulations! All dues are clear for student " << schoolStudent.getRollNumber() << ".";
   else
   {
-    if (schoolStudent.getStudentFee() != 0)
+    cout << "Remaining fees to be paid by student " << schoolStudent.getRollNumber() << " is Rs." << schoolStudent.getStudentFee() << ". Enter fee you want to receive (in Rs.): ";
+    cin >> amountPaid;
+    while (amountPaid > schoolStudent.getStudentFee() || amountPaid < 0)
     {
-      do
-      {
-        if (amountToPay > schoolStudent.getStudentFee())
-        {
-          cout << "\nIt looks like you have entered more fees than the remaining. Please, enter fee equal to or less than remaining: ";
-          cin >> amountToPay;
-        }
-        else
-        {
-          cout << "Remaining fee the student(" << schoolStudent.getRollNumber() << ") has to pay: Rs. " << schoolStudent.getStudentFee() << ".\nEnter the amount of fee to receive: ";
-          cin >> amountToPay;
-        }
-      } while (amountToPay > schoolStudent.getStudentFee());
-      cout << "Rs." << amountToPay << " will be deducted from remaining fee of Rs. " << schoolStudent.getStudentFee() << ". Press 'Y' to proceed or 'N' to abort the transaction.\n=> ";
-      char expectedInput[] = {'y', 'n'};
-      cin >> inputChoice;
-      validateCharInput(inputChoice, expectedInput, 2);
-      switch (inputChoice)
-      {
-      case 'y':
-        schoolStudent.deductFee(amountToPay);
-        cout << "Successful! Rs. " << amountToPay << " has been deducted. Now, remaining fees is: " << schoolStudent.getStudentFee();
-        studentFile.seekg(filePosition);
-        studentFile.write((char *)&schoolStudent, sizeof(schoolStudent));
-        break;
-      case 'n':
-        cout << "Transaction aborted!";
-        break;
-      }
+      cout << "Sorry, we received an invalid fee. Please enter again (in Rs.): ";
+      cin >> amountPaid;
     }
-    else
-      cout << "Congratulations! All dues are clear for student " << schoolStudent.getRollNumber() << ".";
+    schoolStudent.deductFee(amountPaid);
+    studentFile.seekg(filePosition);
+    studentFile.write((char *)&schoolStudent, sizeof(schoolStudent));
+    cout << "We have successfully received " << amountPaid << ". Now remaining fee for student " << schoolStudent.getRollNumber() << " is: " << schoolStudent.getStudentFee();
   }
   studentFile.close();
 }
@@ -197,7 +179,7 @@ class Teacher
 private:
   string teacherName, teacherQualification;
   short teacherExperience, teacherClass, teacherSubjectCode[3];
-  int teacherId;
+  int teacherId, teacherSalary;
 
 public:
   Teacher()
@@ -205,11 +187,12 @@ public:
     teacherSubjectCode[0] = 0;
     teacherSubjectCode[1] = 0;
     teacherSubjectCode[2] = 0;
-    teacherId = 0;
   }
   void inputTeacherDetails();
   void generateTeacherId();
+  void deductTeacherSalary(int salaryPaid) { teacherSalary = teacherSalary - salaryPaid; }
   int getTeacherId() { return teacherId; }
+  int getTeacherSalary() { return teacherSalary; }
 };
 
 // Generates teacherId in format: first three digits are subject code of subject the teacher teaches and the last two digits are
@@ -219,10 +202,9 @@ void Teacher::generateTeacherId()
 {
   Teacher schoolTeacherRead;
   ifstream teacherFile("data/teacher.dat", ios::binary);
-  short flag = 0, id = 1, arrayEquality = 0, loopCounter = 0;
+  short id = 1, arrayEquality = 0, loopCounter = 0;
   while (teacherFile.read((char *)&schoolTeacherRead, sizeof(schoolTeacherRead)))
   {
-    flag++;
     arrayEquality = 0;
     for (loopCounter = 0; loopCounter < 3; ++loopCounter)
     {
@@ -286,15 +268,18 @@ void Teacher::inputTeacherDetails()
       }
     }
   } while (userChoice == 'y' && flag < 4);
-  cout << "\nEnter teacher work experience (in years): ";
+  cout << "\nEnter teacher annual salary (in Rs.): ";
+  cin >> teacherSalary;
+  cout << "Enter teacher work experience (in years): ";
   cin >> teacherExperience;
   cout << "Enter teacher educational qualification: ";
   cin.ignore();
   getline(cin, teacherQualification);
   generateTeacherId();
-  cout << "\nGenerated teacher ID is " << getTeacherId() << " Please, note it safely as it'll be asked during data modification.";
+  cout << "\nGenerated teacher ID is " << getTeacherId() << ". Please, note it safely as it'll be asked during data modification.";
 }
 
+// Adds new teacher
 void addTeacher()
 {
   Teacher schoolTeacher;
@@ -304,6 +289,7 @@ void addTeacher()
   teacherFile.close();
 }
 
+// Removes an existing teacher
 void removeTeacher()
 {
   Teacher teacherRead;
@@ -329,7 +315,184 @@ void removeTeacher()
   remove("data/teacher.dat");
   rename("data/temp_teacher.dat", "data/teacher.dat");
 }
-// -- Everything for teacher Ends here --
+
+// Pay salary to teacher then deducts from remaining
+// Reflects the same in teacher.dat
+void paySalaryToTeacher()
+{
+  system("cls");
+  Teacher schoolTeacher;
+  int inputTeacherId = 0, salaryPaid = 0;
+  long filePosition = 0;
+  short flag = 0;
+  fstream teacherFile("data/teacher.dat", ios::in | ios::out | ios::binary);
+  cout << "Enter ID of teacher to pay salary: ";
+  cin >> inputTeacherId;
+  while (!teacherFile.eof())
+  {
+    filePosition = teacherFile.tellg();
+    teacherFile.read((char *)&schoolTeacher, sizeof(schoolTeacher));
+    if (inputTeacherId == schoolTeacher.getTeacherId())
+    {
+      ++flag;
+      break;
+    }
+  }
+  if (flag == 0)
+    cout << "Sorry, no teacher found with ID " << inputTeacherId << ".";
+  else if (schoolTeacher.getTeacherSalary() == 0)
+    cout << "Congratulations! Total annual salary has been paid to teacher " << schoolTeacher.getTeacherId() << ".";
+  else
+  {
+    cout << "Remaining salary to be paid to teacher " << schoolTeacher.getTeacherId() << " is Rs. " << schoolTeacher.getTeacherSalary() << ". Enter the salary to be paid (in Rs.): ";
+    cin >> salaryPaid;
+    while (salaryPaid > schoolTeacher.getTeacherSalary() || salaryPaid < 0)
+    {
+      cout << "You have entered invalid salary. Please enter a valid salary (in Rs.): ";
+      cin >> salaryPaid;
+    }
+    schoolTeacher.deductTeacherSalary(salaryPaid);
+    teacherFile.seekg(filePosition);
+    teacherFile.write((char *)&schoolTeacher, sizeof(schoolTeacher));
+    cout << "You have successfully paid " << salaryPaid << ". Now remaining salary for teacher " << schoolTeacher.getTeacherId() << " is : Rs." << schoolTeacher.getTeacherSalary();
+  }
+  teacherFile.close();
+}
+// --Everything for teacher Ends here--
+
+// --Everything for staff Starts here--
+class Staff
+{
+private:
+  string staffName;
+  int staffSalary, staffId;
+  short staffDepartmentCode;
+
+public:
+  void inputStaffDetails();
+  void generateStaffId();
+  void deductStaffSalary(int salaryPaid) { staffSalary = staffSalary - salaryPaid; }
+  int getStaffSalary() { return staffSalary; }
+  int getStaffId() { return staffId; }
+};
+
+// Generate staff id in format as explained:
+// First digit indicates staff department, it is multiplied by 1000
+// Then if same staff department is found, id is incremented by 1
+void Staff::generateStaffId()
+{
+  Staff staffRead;
+  short id = 1;
+  ifstream fileToRead("data/staff.dat", ios::binary);
+  while (fileToRead.read((char *)&staffRead, sizeof(staffRead)))
+  {
+    if (staffDepartmentCode == staffRead.staffDepartmentCode)
+      id++;
+  }
+  staffId = (staffDepartmentCode * 1000) + id;
+}
+
+// All staff inputs
+void Staff::inputStaffDetails()
+{
+  system("cls");
+  cout << "Enter staff name: ";
+  cin.ignore();
+  getline(cin, staffName);
+  cout << "\nDepartment Code\t\tName of Department\n\t1\t\tCleaning\n\t2\t\tManagement\n\t3\t\tOffice work\n\t4\t\tOthers";
+  cout << "\nEnter department code from above list to assign staff to that department: ";
+  cin >> staffDepartmentCode;
+  while (staffDepartmentCode > 4 || staffDepartmentCode < 1)
+  {
+    cout << "\nSorry, we received a wrong department code. Please enter valid department code viz. 1, 2, 3 or 4: ";
+    cin >> staffDepartmentCode;
+  }
+  cout << "Enter staff annual salary (in Rs.): ";
+  cin >> staffSalary;
+  generateStaffId();
+  cout << "Generated staff ID is " << getStaffId() << ". Please, note it safely as it'll be asked during data modification.";
+}
+
+// Removal of existing staff
+void removeStaff()
+{
+  Staff staffRead;
+  int inputStaffId;
+  short flag = 0;
+  ifstream fileToRead("data/staff.dat", ios::binary);
+  ofstream fileToWrite("data/temp_staff.dat", ios::binary | ios::app);
+  cout << "Enter ID of staff whose data has to be removed: ";
+  cin >> inputStaffId;
+  while (fileToRead.read((char *)&staffRead, sizeof(staffRead)))
+  {
+    if (inputStaffId == staffRead.getStaffId())
+      flag++;
+    else
+      fileToWrite.write((char *)&staffRead, sizeof(staffRead));
+  }
+  if (flag == 0)
+    cout << "Sorry, No Match found.";
+  else
+    cout << "Data of staff " << inputStaffId << " has been removed from file.";
+  fileToRead.close();
+  fileToWrite.close();
+  remove("data/staff.dat");
+  rename("data/temp_staff.dat", "data/staff.dat");
+}
+
+// Adds new staff
+void addStaff()
+{
+  Staff schoolStaff;
+  fstream staffFile("data/staff.dat", ios::in | ios::out | ios::app | ios::binary);
+  schoolStaff.inputStaffDetails();
+  staffFile.write((char *)&schoolStaff, sizeof(schoolStaff));
+  staffFile.close();
+}
+
+// Pay salary to staff.
+// Deduct salary paid and reflect in staff.dat file.
+void paySalaryToStaff()
+{
+  system("cls");
+  Staff schoolStaff;
+  int inputStaffId = 0, salaryPaid = 0;
+  long filePosition = 0;
+  short flag = 0;
+  fstream staffFile("data/staff.dat", ios::in | ios::out | ios::binary);
+  cout << "Enter ID of staff to pay salary: ";
+  cin >> inputStaffId;
+  while (!staffFile.eof())
+  {
+    filePosition = staffFile.tellg();
+    staffFile.read((char *)&schoolStaff, sizeof(schoolStaff));
+    if (inputStaffId == schoolStaff.getStaffId())
+    {
+      ++flag;
+      break;
+    }
+  }
+  if (flag == 0)
+    cout << "Sorry, no staff found with ID " << inputStaffId << ".";
+  else if (schoolStaff.getStaffSalary() == 0)
+    cout << "Congratulations! Total annual salary has been paid to staff " << schoolStaff.getStaffId() << ".";
+  else
+  {
+    cout << "Remaining salary to be paid to staff " << schoolStaff.getStaffId() << " is Rs. " << schoolStaff.getStaffSalary() << ". Enter the salary to be paid (in Rs.): ";
+    cin >> salaryPaid;
+    while (salaryPaid > schoolStaff.getStaffSalary() || salaryPaid < 0)
+    {
+      cout << "You have entered invalid salary. Please enter a valid salary (in Rs.): ";
+      cin >> salaryPaid;
+    }
+    schoolStaff.deductStaffSalary(salaryPaid);
+    staffFile.seekg(filePosition);
+    staffFile.write((char *)&schoolStaff, sizeof(schoolStaff));
+    cout << "You have successfully paid " << salaryPaid << ". Now remaining salary for staff " << schoolStaff.getStaffId() << " is: Rs." << schoolStaff.getStaffSalary();
+  }
+  staffFile.close();
+}
+// --Everything for staff Ends here--
 
 // Displays screen for removal of existing student, teacher ot staff
 void displayRemoveDataScreen()
@@ -350,7 +513,7 @@ void displayRemoveDataScreen()
     removeTeacher();
     break;
   case 3:
-    // removeStaff();
+    removeStaff();
     break;
   }
 }
@@ -374,7 +537,7 @@ void displayAddDataScreen()
     addTeacher();
     break;
   case 3:
-    // addStaff();
+    addStaff();
     break;
   }
 }
@@ -421,14 +584,12 @@ void HomeScreen()
     receiveStudentFee();
     break;
   case 'h':
-    cout << "\nWork under progress...";
+    paySalaryToTeacher();
     break;
   case 'i':
-    cout << "\nWork under progress...";
+    paySalaryToStaff();
     break;
-  // Default case will never get executed ;)
-  default:
-    cout << "\nWrong Input Received.";
+    // Default case will never get executed ;)
   }
 }
 

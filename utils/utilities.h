@@ -1,6 +1,5 @@
-// This file contains functions required for proper I/O validation and functions which
-// will be called a lot of times
-
+// This file contains functions required for proper I/O validation
+// and often called functions
 #include <iostream>
 using namespace std;
 
@@ -52,11 +51,4 @@ void teacherSubjectCodeVerifier(short teacherSubjectCode[], short inputAtIndex)
     cout << "Sorry, we received a wrong subject code. Please enter subject code between 1 to 5: ";
     cin >> teacherSubjectCode[inputAtIndex];
   }
-}
-
-void yesNoChoice(char &userInput)
-{
-  cin >> userInput;
-  char expectedInput[] = {'y', 'n'};
-  validateCharInput(userInput, expectedInput, 2);
 }
