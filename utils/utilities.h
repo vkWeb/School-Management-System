@@ -3,24 +3,7 @@
 #include <iostream>
 using namespace std;
 
-void displayCharArray(char myArray[], short arraySize)
-{
-  for (int i = 0; i < arraySize; i++)
-    cout << myArray[i];
-}
-
-void convertCharArrayToLower(char myArray[], short arraySize)
-{
-  for (int i = 0; i < arraySize; i++)
-    myArray[i] = tolower(myArray[i]);
-}
-
-void convertCharArrayToUpper(char myArray[], short arraySize)
-{
-  for (int i = 0; i < arraySize; i++)
-    myArray[i] = toupper(myArray[i]);
-}
-
+// Validates char input taken from user
 void validateCharInput(char &userInput, char expectedInput[], short expectedInputSize)
 {
   short flag;
@@ -44,11 +27,30 @@ void validateCharInput(char &userInput, char expectedInput[], short expectedInpu
   } while (flag == 0);
 }
 
+// Verifies teacher subject code, checks if it is between 1 to 5 or not
 void teacherSubjectCodeVerifier(short teacherSubjectCode[], short inputAtIndex)
 {
   while (teacherSubjectCode[inputAtIndex] < 1 || teacherSubjectCode[inputAtIndex] > 5)
   {
     cout << "Sorry, we received a wrong subject code. Please enter subject code between 1 to 5: ";
     cin >> teacherSubjectCode[inputAtIndex];
+  }
+}
+
+// 1. Science     2. Maths      3. English     4. Hindi    5. Social Studies
+void setTeacherSubjects(short teacherSubjectCode[], char teacherSubjects[])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    if (teacherSubjectCode[i] == 1)
+      strcat(teacherSubjects, "Science ");
+    else if (teacherSubjectCode[i] == 2)
+      strcat(teacherSubjects, "Maths ");
+    else if (teacherSubjectCode[i] == 3)
+      strcat(teacherSubjects, "English ");
+    else if (teacherSubjectCode[i] == 4)
+      strcat(teacherSubjects, "Hindi ");
+    else if (teacherSubjectCode[i] == 5)
+      strcat(teacherSubjects, "Social Studies ");
   }
 }
