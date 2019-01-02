@@ -6,6 +6,7 @@
   "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
   "files.autoSave": "onFocusChange",
+  "C_Cpp.default.cppStandard": "c++11",
   "files.associations": {
     "*.tcc": "cpp",
     "cctype": "cpp",

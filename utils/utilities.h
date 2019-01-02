@@ -37,7 +37,7 @@ void teacherSubjectCodeVerifier(short teacherSubjectCode[], short inputAtIndex)
   }
 }
 
-// 1. Science     2. Maths      3. English     4. Hindi    5. Social Studies
+// Sets teacher's subject by using subject code; 1. Science 2. Maths 3. English 4. Hindi 5. Social Studies
 void setTeacherSubjects(short teacherSubjectCode[], char teacherSubjects[])
 {
   for (int i = 0; i < 3; ++i)
