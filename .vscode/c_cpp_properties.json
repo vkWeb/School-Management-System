@@ -8,7 +8,7 @@
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
       "windowsSdkVersion": "8.1",
       "cStandard": "c11",
-      "cppStandard": "c++17"
+      "cppStandard": "c++11"
     }
   ],
   "version": 4

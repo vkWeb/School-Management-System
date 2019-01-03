@@ -37,7 +37,8 @@ void teacherSubjectCodeVerifier(short teacherSubjectCode[], short inputAtIndex)
   }
 }
 
-// Sets teacher's subject by using subject code; 1. Science 2. Maths 3. English 4. Hindi 5. Social Studies
+// Sets teacher's subject by using subject code
+// Subject codes and the respective subjects: 1 = Science, 2 = Maths, 3 = English, 4 = Hindi, 5 = Social Studies
 void setTeacherSubjects(short teacherSubjectCode[], char teacherSubjects[])
 {
   for (int i = 0; i < 3; ++i)
@@ -52,5 +53,25 @@ void setTeacherSubjects(short teacherSubjectCode[], char teacherSubjects[])
       strcat(teacherSubjects, "Hindi ");
     else if (teacherSubjectCode[i] == 5)
       strcat(teacherSubjects, "Social Studies ");
+  }
+}
+
+// Validate marks
+void validateSubjectMarks(short marks[], short index)
+{
+  while (marks[index] < 0 || marks[index] > 100)
+  {
+    cout << "Looks like you have entered an invalid response. Please enter marks again (0 - 100): ";
+    cin >> marks[index];
+  }
+}
+
+// Validate number of days
+void validateDays(short &days)
+{
+  while (days > 366 || days < 1)
+  {
+    cout << "Looks like you have entered an invalid response. Please enter number of days again (1 - 366): ";
+    cin >> days;
   }
 }
