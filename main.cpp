@@ -1,5 +1,6 @@
 #include <iostream>          // For basic I/O operations e.g. cin, cout, etc.
 #include <fstream>           // For data file handling
+#include <iomanip>           // Manipulates floating point numbers and also manipulates console I/O
 #include <string.h>          // For strcmp()
 #include <stdio.h>           // For remove() and rename()
 #include "utils/utilities.h" // Contain utils required for proper I/O
@@ -19,13 +20,16 @@ public:
   {
     id = 0;
   }
+
+  int getId() const { return id; }
 };
 
 // --Everything for student Starts here--
 class Student : public SchoolMember
 {
 private:
-  int studentClass, studentFee;
+  int studentFee;
+  short studentClass;
   char motherName[29], fatherName[29], studentSection;
 
 public:
@@ -33,6 +37,7 @@ public:
   {
     id = 1;
   }
+
   void inputStudentDetails();
   void generateRollNumber();
   void displayStudentData() const
@@ -41,7 +46,6 @@ public:
          << "\nMother's name: " << motherName << "\nFather's name: " << fatherName << "\nRemaining fee: Rs." << studentFee;
   }
   void deductFee(int amountPaid) { studentFee = studentFee - amountPaid; }
-  int getRollNumber() const { return id; }
   int getStudentFee() const { return studentFee; }
 };
 
@@ -53,13 +57,10 @@ void Student::generateRollNumber()
 {
   Student schoolStudentTemp;
   fstream studentFile("data/student.dat", ios::in | ios::out | ios::app | ios::binary);
-  short flag = 0;
-
   while (studentFile.read((char *)&schoolStudentTemp, sizeof(schoolStudentTemp)))
   {
     if (studentClass == schoolStudentTemp.studentClass && tolower(studentSection) == tolower(schoolStudentTemp.studentSection))
     {
-      flag++;
       for (short i = 0; i < 4; ++i)
       {
         if (tolower(schoolStudentTemp.name[i]) > tolower(name[i]))
@@ -80,10 +81,7 @@ void Student::generateRollNumber()
       }
     }
   }
-  if (flag == 0)
-  {
-    id = (studentClass * 1000) + (tolower(studentSection) - 96) * 100 + id;
-  }
+  id = (studentClass * 1000) + (tolower(studentSection) - 96) * 100 + id;
 }
 
 // Inputs student details
@@ -107,34 +105,7 @@ void Student::inputStudentDetails()
   cout << "Enter student mother's name (max. 28 characters): ";
   gets(motherName);
   generateRollNumber();
-  cout << "\nGenerated roll number is " << getRollNumber() << ". Please, note it safely as it'll be asked during data modification.";
-}
-
-// Asks roll number. If found then student is removed from file
-void removeStudent()
-{
-  Student studentRead;
-  int userRollNumber;
-  short flag = 0;
-  ifstream fileToRead("data/student.dat", ios::binary);
-  ofstream fileToWrite("data/temp_student.dat", ios::binary | ios::app);
-  cout << "Enter roll number of student whose data has to be removed: ";
-  cin >> userRollNumber;
-  while (fileToRead.read((char *)&studentRead, sizeof(studentRead)))
-  {
-    if (userRollNumber == studentRead.getRollNumber())
-      flag++;
-    else
-      fileToWrite.write((char *)&studentRead, sizeof(studentRead));
-  }
-  if (flag == 0)
-    cout << "Sorry, No Match found.";
-  else
-    cout << "Data of roll number " << userRollNumber << " has been removed from file.";
-  fileToRead.close();
-  fileToWrite.close();
-  remove("data/student.dat");
-  rename("data/temp_student.dat", "data/student.dat");
+  cout << "\nGenerated roll number is " << getId() << ". Please, note it safely as it'll be asked during data modification.";
 }
 
 // Adds student
@@ -145,6 +116,33 @@ void addStudent()
   schoolStudent.inputStudentDetails();
   studentFile.write((char *)&schoolStudent, sizeof(schoolStudent));
   studentFile.close();
+}
+
+// Asks for student roll number, if found data is removed from file
+void removeStudent()
+{
+  Student studentRead;
+  int inputStudentId;
+  short flag = 0;
+  ifstream fileToRead("data/student.dat", ios::binary);
+  ofstream fileToWrite("data/temp_student.dat", ios::binary | ios::app);
+  cout << "Enter ID of teacher whose data has to be removed: ";
+  cin >> inputStudentId;
+  while (fileToRead.read((char *)&studentRead, sizeof(studentRead))) // vk note: not working
+  {
+    if (inputStudentId == studentRead.getId())
+      flag++;
+    else
+      fileToWrite.write((char *)&studentRead, sizeof(studentRead));
+  }
+  if (flag == 0)
+    cout << "Sorry, No Match found.";
+  else
+    cout << "Data of student " << inputStudentId << " has been removed from file.";
+  fileToRead.close();
+  fileToWrite.close();
+  remove("data/student.dat");
+  rename("data/temp_student.dat", "data/student.dat");
 }
 
 // Receives student fee and deducts from the remaining
@@ -163,7 +161,7 @@ void receiveStudentFee()
   {
     filePosition = studentFile.tellg();
     studentFile.read((char *)&schoolStudent, sizeof(schoolStudent));
-    if (inputRollNumber == schoolStudent.getRollNumber())
+    if (inputRollNumber == schoolStudent.getId())
     {
       flag++;
       break;
@@ -172,10 +170,10 @@ void receiveStudentFee()
   if (flag == 0)
     cout << "Sorry, Roll number not found.";
   else if (schoolStudent.getStudentFee() == 0)
-    cout << "Congratulations! All dues are clear for student " << schoolStudent.getRollNumber() << ".";
+    cout << "Congratulations! All dues are clear for student " << schoolStudent.getId() << ".";
   else
   {
-    cout << "Remaining fees to be paid by student " << schoolStudent.getRollNumber() << " is Rs." << schoolStudent.getStudentFee() << ". Enter fee you want to receive (in Rs.): ";
+    cout << "Remaining fees to be paid by student " << schoolStudent.getId() << " is Rs." << schoolStudent.getStudentFee() << ". Enter fee you want to receive (in Rs.): ";
     cin >> amountPaid;
     while (amountPaid > schoolStudent.getStudentFee() || amountPaid < 0)
     {
@@ -185,7 +183,7 @@ void receiveStudentFee()
     schoolStudent.deductFee(amountPaid);
     studentFile.seekg(filePosition);
     studentFile.write((char *)&schoolStudent, sizeof(schoolStudent));
-    cout << "We have successfully received " << amountPaid << ". Now remaining fee for student " << schoolStudent.getRollNumber() << " is: " << schoolStudent.getStudentFee();
+    cout << "We have successfully received " << amountPaid << ". Now remaining fee for student " << schoolStudent.getId() << " is: " << schoolStudent.getStudentFee();
   }
   studentFile.close();
 }
@@ -202,7 +200,7 @@ void viewStudentData()
   cin >> inputRollNumber;
   while (fileToRead.read((char *)&studentRead, sizeof(studentRead)))
   {
-    if (inputRollNumber == studentRead.getRollNumber())
+    if (inputRollNumber == studentRead.getId())
     {
       ++flag;
       break;
@@ -239,7 +237,6 @@ public:
          << "\nClass taught: " << teacherClass << "\nSubjects taught: " << teacherSubjects
          << "\nSalary to be paid: Rs." << teacherSalary;
   }
-  int getTeacherId() const { return id; }
   int getTeacherSalary() const { return teacherSalary; }
 };
 
@@ -325,7 +322,7 @@ void Teacher::inputTeacherDetails()
   cin.ignore();
   gets(teacherQualification);
   generateTeacherId();
-  cout << "\nGenerated teacher ID is " << getTeacherId() << ". Please, note it safely as it'll be asked during data modification.";
+  cout << "\nGenerated teacher ID is " << getId() << ". Please, note it safely as it'll be asked during data modification.";
 }
 
 // Adds new teacher
@@ -350,7 +347,7 @@ void removeTeacher()
   cin >> inputTeacherId;
   while (fileToRead.read((char *)&teacherRead, sizeof(teacherRead))) // vk note: not working
   {
-    if (inputTeacherId == teacherRead.getTeacherId())
+    if (inputTeacherId == teacherRead.getId())
       flag++;
     else
       fileToWrite.write((char *)&teacherRead, sizeof(teacherRead));
@@ -381,7 +378,7 @@ void paySalaryToTeacher()
   {
     filePosition = teacherFile.tellg();
     teacherFile.read((char *)&schoolTeacher, sizeof(schoolTeacher));
-    if (inputTeacherId == schoolTeacher.getTeacherId())
+    if (inputTeacherId == schoolTeacher.getId())
     {
       ++flag;
       break;
@@ -390,10 +387,10 @@ void paySalaryToTeacher()
   if (flag == 0)
     cout << "Sorry, no teacher found with ID " << inputTeacherId << ".";
   else if (schoolTeacher.getTeacherSalary() == 0)
-    cout << "Congratulations! Total annual salary has been paid to teacher " << schoolTeacher.getTeacherId() << ".";
+    cout << "Congratulations! Total annual salary has been paid to teacher " << schoolTeacher.getId() << ".";
   else
   {
-    cout << "Remaining salary to be paid to teacher " << schoolTeacher.getTeacherId() << " is Rs. " << schoolTeacher.getTeacherSalary() << ". Enter the salary to be paid (in Rs.): ";
+    cout << "Remaining salary to be paid to teacher " << schoolTeacher.getId() << " is Rs. " << schoolTeacher.getTeacherSalary() << ". Enter the salary to be paid (in Rs.): ";
     cin >> salaryPaid;
     while (salaryPaid > schoolTeacher.getTeacherSalary() || salaryPaid < 0)
     {
@@ -403,7 +400,7 @@ void paySalaryToTeacher()
     schoolTeacher.deductTeacherSalary(salaryPaid);
     teacherFile.seekg(filePosition);
     teacherFile.write((char *)&schoolTeacher, sizeof(schoolTeacher));
-    cout << "You have successfully paid " << salaryPaid << ". Now remaining salary for teacher " << schoolTeacher.getTeacherId() << " is : Rs." << schoolTeacher.getTeacherSalary();
+    cout << "You have successfully paid " << salaryPaid << ". Now remaining salary for teacher " << schoolTeacher.getId() << " is : Rs." << schoolTeacher.getTeacherSalary();
   }
   teacherFile.close();
 }
@@ -419,7 +416,7 @@ void viewTeacherData()
   cin >> inputId;
   while (fileToRead.read((char *)&teacherRead, sizeof(teacherRead)))
   {
-    if (inputId == teacherRead.getTeacherId())
+    if (inputId == teacherRead.getId())
     {
       ++flag;
       break;
@@ -450,7 +447,6 @@ public:
   }
   void deductStaffSalary(int salaryPaid) { staffSalary = staffSalary - salaryPaid; }
   int getStaffSalary() const { return staffSalary; }
-  int getStaffId() const { return id; }
 };
 
 // Generate staff id in format as explained:
@@ -502,7 +498,7 @@ void Staff::inputStaffDetails()
   cout << "Enter staff annual salary (in Rs.): ";
   cin >> staffSalary;
   generateStaffId();
-  cout << "Generated staff ID is " << getStaffId() << ". Please, note it safely as it'll be asked during data modification.";
+  cout << "Generated staff ID is " << getId() << ". Please, note it safely as it'll be asked during data modification.";
 }
 
 // Removal of existing staff
@@ -517,7 +513,7 @@ void removeStaff()
   cin >> inputStaffId;
   while (fileToRead.read((char *)&staffRead, sizeof(staffRead)))
   {
-    if (inputStaffId == staffRead.getStaffId())
+    if (inputStaffId == staffRead.getId())
       flag++;
     else
       fileToWrite.write((char *)&staffRead, sizeof(staffRead));
@@ -558,7 +554,7 @@ void paySalaryToStaff()
   {
     filePosition = staffFile.tellg();
     staffFile.read((char *)&schoolStaff, sizeof(schoolStaff));
-    if (inputStaffId == schoolStaff.getStaffId())
+    if (inputStaffId == schoolStaff.getId())
     {
       ++flag;
       break;
@@ -567,10 +563,10 @@ void paySalaryToStaff()
   if (flag == 0)
     cout << "Sorry, no staff found with ID " << inputStaffId << ".";
   else if (schoolStaff.getStaffSalary() == 0)
-    cout << "Congratulations! Total annual salary has been paid to staff " << schoolStaff.getStaffId() << ".";
+    cout << "Congratulations! Total annual salary has been paid to staff " << schoolStaff.getId() << ".";
   else
   {
-    cout << "Remaining salary to be paid to staff " << schoolStaff.getStaffId() << " is Rs. " << schoolStaff.getStaffSalary() << ". Enter the salary to be paid (in Rs.): ";
+    cout << "Remaining salary to be paid to staff " << schoolStaff.getId() << " is Rs. " << schoolStaff.getStaffSalary() << ". Enter the salary to be paid (in Rs.): ";
     cin >> salaryPaid;
     while (salaryPaid > schoolStaff.getStaffSalary() || salaryPaid < 0)
     {
@@ -580,7 +576,7 @@ void paySalaryToStaff()
     schoolStaff.deductStaffSalary(salaryPaid);
     staffFile.seekg(filePosition);
     staffFile.write((char *)&schoolStaff, sizeof(schoolStaff));
-    cout << "You have successfully paid " << salaryPaid << ". Now remaining salary for staff " << schoolStaff.getStaffId() << " is: Rs." << schoolStaff.getStaffSalary();
+    cout << "You have successfully paid " << salaryPaid << ". Now remaining salary for staff " << schoolStaff.getId() << " is: Rs." << schoolStaff.getStaffSalary();
   }
   staffFile.close();
 }
@@ -595,7 +591,7 @@ void viewStaffData()
   cin >> inputId;
   while (fileToRead.read((char *)&staffRead, sizeof(staffRead)))
   {
-    if (inputId == staffRead.getStaffId())
+    if (inputId == staffRead.getId())
     {
       ++flag;
       break;
@@ -611,8 +607,132 @@ void viewStaffData()
 // --Everything for student academics starts here--
 class Academic : public Student
 {
-  // Under progress...
+private:
+  short marks[5], daysPresent, totalWorkingDays;
+  float averageMarks, attendancePercentage;
+
+public:
+  Academic()
+  {
+    marks[0] = 0;
+    marks[1] = 0;
+    marks[2] = 0;
+    marks[3] = 0;
+    marks[4] = 0;
+    daysPresent = 0;
+    totalWorkingDays = 0;
+    averageMarks = 0.0f;
+    attendancePercentage = 0.0f;
+  }
+
+  void generateAcademicReport(Student, short &);
+  void generateAttendanceReport(Student, short &);
 };
+
+// Generates student academic report
+// Validates roll number, if roll number is found
+// Then marks for five subjects is asked then average is calculated
+void Academic::generateAcademicReport(Student studentRead, short &flag)
+{
+  system("cls");
+  int inputRollNumber = 0;
+  cout << "Enter student roll number whose academic report you want to generate: ";
+  cin >> inputRollNumber;
+  ifstream fileToRead("data/student.dat", ios::binary);
+  while (fileToRead.read((char *)&studentRead, sizeof(studentRead)))
+  {
+    if (inputRollNumber == studentRead.getId())
+    {
+      ++flag;
+      break;
+    }
+  }
+  if (flag > 0)
+  {
+    cout << "\nEnter marks of student " << inputRollNumber << " between 0 to 100 in subjects asked below: ";
+    cout << "\n1. Science = ";
+    cin >> marks[0];
+    validateSubjectMarks(marks, 0);
+    cout << "2. Maths = ";
+    cin >> marks[1];
+    validateSubjectMarks(marks, 1);
+    cout << "3. English = ";
+    cin >> marks[2];
+    validateSubjectMarks(marks, 2);
+    cout << "4. Hindi = ";
+    cin >> marks[3];
+    validateSubjectMarks(marks, 3);
+    cout << "5. Social Studies = ";
+    cin >> marks[4];
+    validateSubjectMarks(marks, 4);
+    averageMarks = (marks[0] + marks[1] + marks[2] + marks[3] + marks[4]) / 5;
+    cout << fixed << setprecision(1) << "Generated Average Marks = " << averageMarks;
+  }
+  else
+    cout << "No match found.";
+}
+
+// Generates student attendance report
+// Validates roll number, if roll number is found
+// Then total number of working days and days present is asked
+// Attendance % is calculated as: (days present / total no. of days) * 100
+void Academic::generateAttendanceReport(Student studentRead, short &flag)
+{
+  system("cls");
+  int inputRollNumber = 0;
+  cout << "Enter student roll number whose attendance report you want to generate: ";
+  cin >> inputRollNumber;
+  ifstream fileToRead("data/student.dat", ios::binary);
+  while (fileToRead.read((char *)&studentRead, sizeof(studentRead)))
+  {
+    if (inputRollNumber == studentRead.getId())
+    {
+      ++flag;
+      break;
+    }
+  }
+  if (flag > 0)
+  {
+    cout << "\nEnter total number of working days (1 - 366): ";
+    cin >> totalWorkingDays;
+    validateDays(totalWorkingDays);
+    cout << "Enter number of days student " << inputRollNumber << " was present (1 - 366): ";
+    cin >> daysPresent;
+    validateDays(daysPresent);
+    attendancePercentage = ((daysPresent / totalWorkingDays) * 100);
+    cout << fixed << setprecision(1) << "Generated Attendance Percentage = " << attendancePercentage << "%";
+  }
+  else
+    cout << "No match found.";
+}
+
+// Calls studentAcademics.generateAcademicReport(Student)
+// And writes recorded information to academic_report.dat file
+void academicReport()
+{
+  short flag = 0;
+  Academic studentAcademics;
+  Student studentRead;
+  fstream reportFile("data/academic_report.dat", ios::in | ios::out | ios::app | ios::binary);
+  studentAcademics.generateAcademicReport(studentRead, flag);
+  if (flag > 0)
+    reportFile.write((char *)&studentAcademics, sizeof(studentAcademics));
+  reportFile.close();
+}
+
+// Calls studentAcademics.generateAttendanceReport(Student)
+// And writes recorded information to attendance_report.dat file
+void attendanceReport()
+{
+  short flag = 0;
+  Academic studentAcademics;
+  Student studentRead;
+  fstream reportFile("data/attendance_report.dat", ios::in | ios::out | ios::app | ios::binary);
+  studentAcademics.generateAttendanceReport(studentRead, flag);
+  if (flag > 0)
+    reportFile.write((char *)&studentAcademics, sizeof(studentAcademics));
+  reportFile.close();
+}
 // --Everything for student academics ends here--
 
 // Displays screen for removal of existing student, teacher ot staff
@@ -668,7 +788,6 @@ void HomeScreen()
 {
   system("cls");
   char menuOption;
-  Student schoolStudent;
   cout << "1. WORK WITH DATA RECORDS\t\t\t\t\t\t2. VIEW DATA RECORDS";
   cout << "\nA. Add a new student, teacher or staff\t\t\t\t\tD. View student data records";
   cout << "\nB. Remove an existing student, teacher or staff \t\t\tE. View teacher data records";
@@ -711,12 +830,15 @@ void HomeScreen()
     paySalaryToStaff();
     break;
   case 'j':
+    // View academics report section
     break;
   case 'k':
+    academicReport();
     break;
   case 'l':
+    attendanceReport();
     break;
-    // Default case will never get executed ;)
+    // Congratulations! Default case will never get executed ;)
   }
 }
 
