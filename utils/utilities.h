@@ -2,6 +2,27 @@
 #include <iostream>
 using namespace std;
 
+// Declaring HomeScreen() for use in basicNavigation()
+void HomeScreen();
+
+// Sanitize character array input
+void sanitizeCharArray(char memberName[], short arraySize)
+{
+  for (short i = 0; i < arraySize; ++i)
+  {
+    if (memberName[i] > 64)
+      memberName[i] = tolower(memberName[i]);
+  }
+}
+
+// Displays character array (C-like string) in uppercase
+void displayNameInUpper(const char memberName[], short arraySize)
+{
+  cout << "\nName: ";
+  for (short i = 0; i < arraySize; ++i)
+    cout << char(toupper(memberName[i]));
+}
+
 // Validates char input taken from user
 void validateCharInput(char &userInput, char expectedInput[], short expectedInputSize)
 {
@@ -43,5 +64,29 @@ void validateDays(float &days)
   {
     cout << "Looks like you have entered an invalid response. Please enter number of days again (1 - 366): ";
     cin >> days;
+  }
+}
+
+// Basic navigation system
+// Press 'H' to go back to home screen or 'Q' to quit
+void basicNavigation()
+{
+  char userChoice;
+  cout << "\n\n=> Press 'H' to go back to home screen or 'Q' to quit: ";
+  cin >> userChoice;
+  while (tolower(userChoice) != 'h' && tolower(userChoice) != 'q')
+  {
+    cout << "Sorry, we received a wrong input. Please re-enter (H' -> Home Screen or 'Q' -> Quit): ";
+    cin >> userChoice;
+  }
+  switch (tolower(userChoice))
+  {
+  case 'h':
+    HomeScreen();
+    break;
+
+  case 'q':
+    exit(0);
+    break;
   }
 }
