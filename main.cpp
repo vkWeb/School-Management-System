@@ -24,13 +24,55 @@ public:
   int getId() const { return id; }
 };
 
+// Using function template to remove contents of student, teacher or staff
+// If you are new to template functions. You can learn more about it here:
+// https://www.learncpp.com/cpp-tutorial/131-function-templates/
+template <typename T>
+void removeMember(const string filePath, const string tempFilePath, const T &schoolMember)
+{
+  int inputId;
+  short flag = 0;
+  ifstream fileToRead(filePath, ios::binary);
+  ofstream fileToWrite(tempFilePath, ios::binary | ios::app);
+  cout << "Enter ID of person whose data has to be removed: ";
+  cin >> inputId;
+  while (fileToRead.read((char *)&schoolMember, sizeof(schoolMember)))
+  {
+    if (inputId == schoolMember.getId())
+      flag++;
+    else
+      fileToWrite.write((char *)&schoolMember, sizeof(schoolMember));
+  }
+  if (flag == 0)
+    cout << "Sorry, No Match found.";
+  else
+    cout << "Data of ID " << inputId << " has been removed from file.";
+  fileToRead.close();
+  fileToWrite.close();
+  remove(filePath.c_str());
+  rename(tempFilePath.c_str(), filePath.c_str());
+}
+
+// Using function template to add contents of student, teacher or staff
+template <typename T>
+void addMember(const string filePath, T &schoolMember)
+{
+  fstream file(filePath, ios::in | ios::out | ios::app | ios::binary);
+  schoolMember.inputDetails();
+  file.write((char *)&schoolMember, sizeof(schoolMember));
+  file.close();
+}
+
 // --Everything for student Starts here--
 class Student : public SchoolMember
 {
 private:
   int studentFee;
+
+protected:
   short studentClass;
   char motherName[29], fatherName[29], studentSection;
+  // using SchoolMember::id;
 
 public:
   Student()
@@ -38,7 +80,8 @@ public:
     id = 1;
   }
 
-  void inputStudentDetails();
+  // int getId() const { SchoolMember::getId(); }
+  void inputDetails();
   void generateRollNumber();
   void displayStudentData() const
   {
@@ -47,6 +90,7 @@ public:
   }
   void deductFee(int amountPaid) { studentFee = studentFee - amountPaid; }
   int getStudentFee() const { return studentFee; }
+  string getName() const { return name; }
 };
 
 // Generate roll number by using class, section and first four characters of name.
@@ -57,10 +101,12 @@ void Student::generateRollNumber()
 {
   Student schoolStudentTemp;
   fstream studentFile("data/student.dat", ios::in | ios::out | ios::app | ios::binary);
+  short flag = 0;
   while (studentFile.read((char *)&schoolStudentTemp, sizeof(schoolStudentTemp)))
   {
     if (studentClass == schoolStudentTemp.studentClass && tolower(studentSection) == tolower(schoolStudentTemp.studentSection))
     {
+      ++flag;
       for (short i = 0; i < 4; ++i)
       {
         if (tolower(schoolStudentTemp.name[i]) > tolower(name[i]))
@@ -81,11 +127,12 @@ void Student::generateRollNumber()
       }
     }
   }
-  id = (studentClass * 1000) + (tolower(studentSection) - 96) * 100 + id;
+  if (flag == 0)
+    id = (studentClass * 1000) + (tolower(studentSection) - 96) * 100 + id;
 }
 
 // Inputs student details
-void Student::inputStudentDetails()
+void Student::inputDetails()
 {
   system("cls");
   cout << "Enter student name (max. 28 characters): ";
@@ -106,43 +153,6 @@ void Student::inputStudentDetails()
   gets(motherName);
   generateRollNumber();
   cout << "\nGenerated roll number is " << getId() << ". Please, note it safely as it'll be asked during data modification.";
-}
-
-// Adds student
-void addStudent()
-{
-  Student schoolStudent;
-  fstream studentFile("data/student.dat", ios::in | ios::out | ios::app | ios::binary);
-  schoolStudent.inputStudentDetails();
-  studentFile.write((char *)&schoolStudent, sizeof(schoolStudent));
-  studentFile.close();
-}
-
-// Asks for student roll number, if found data is removed from file
-void removeStudent()
-{
-  Student studentRead;
-  int inputStudentId;
-  short flag = 0;
-  ifstream fileToRead("data/student.dat", ios::binary);
-  ofstream fileToWrite("data/temp_student.dat", ios::binary | ios::app);
-  cout << "Enter ID of teacher whose data has to be removed: ";
-  cin >> inputStudentId;
-  while (fileToRead.read((char *)&studentRead, sizeof(studentRead))) // vk note: not working
-  {
-    if (inputStudentId == studentRead.getId())
-      flag++;
-    else
-      fileToWrite.write((char *)&studentRead, sizeof(studentRead));
-  }
-  if (flag == 0)
-    cout << "Sorry, No Match found.";
-  else
-    cout << "Data of student " << inputStudentId << " has been removed from file.";
-  fileToRead.close();
-  fileToWrite.close();
-  remove("data/student.dat");
-  rename("data/temp_student.dat", "data/student.dat");
 }
 
 // Receives student fee and deducts from the remaining
@@ -228,7 +238,7 @@ public:
     teacherSubjectCode[1] = 0;
     teacherSubjectCode[2] = 0;
   }
-  void inputTeacherDetails();
+  void inputDetails();
   void generateTeacherId();
   void deductTeacherSalary(int salaryPaid) { teacherSalary = teacherSalary - salaryPaid; }
   void displayTeacherData() const
@@ -263,7 +273,7 @@ void Teacher::generateTeacherId()
 }
 
 // Take all teacher inputs
-void Teacher::inputTeacherDetails()
+void Teacher::inputDetails()
 {
   system("cls");
   short flag = 0;
@@ -323,43 +333,6 @@ void Teacher::inputTeacherDetails()
   gets(teacherQualification);
   generateTeacherId();
   cout << "\nGenerated teacher ID is " << getId() << ". Please, note it safely as it'll be asked during data modification.";
-}
-
-// Adds new teacher
-void addTeacher()
-{
-  Teacher schoolTeacher;
-  fstream teacherFile("data/teacher.dat", ios::in | ios::out | ios::app | ios::binary);
-  schoolTeacher.inputTeacherDetails();
-  teacherFile.write((char *)&schoolTeacher, sizeof(schoolTeacher));
-  teacherFile.close();
-}
-
-// Removes an existing teacher
-void removeTeacher()
-{
-  Teacher teacherRead;
-  int inputTeacherId;
-  short flag = 0;
-  ifstream fileToRead("data/teacher.dat", ios::binary);
-  ofstream fileToWrite("data/temp_teacher.dat", ios::binary | ios::app);
-  cout << "Enter ID of teacher whose data has to be removed: ";
-  cin >> inputTeacherId;
-  while (fileToRead.read((char *)&teacherRead, sizeof(teacherRead))) // vk note: not working
-  {
-    if (inputTeacherId == teacherRead.getId())
-      flag++;
-    else
-      fileToWrite.write((char *)&teacherRead, sizeof(teacherRead));
-  }
-  if (flag == 0)
-    cout << "Sorry, No Match found.";
-  else
-    cout << "Data of teacher " << inputTeacherId << " has been removed from file.";
-  fileToRead.close();
-  fileToWrite.close();
-  remove("data/teacher.dat");
-  rename("data/temp_teacher.dat", "data/teacher.dat");
 }
 
 // Pay salary to teacher then deducts from remaining
@@ -438,7 +411,7 @@ private:
   short staffDepartmentCode;
 
 public:
-  void inputStaffDetails();
+  void inputDetails();
   void generateStaffId();
   void displayStaffData() const
   {
@@ -466,7 +439,7 @@ void Staff::generateStaffId()
 }
 
 // All staff inputs
-void Staff::inputStaffDetails()
+void Staff::inputDetails()
 {
   system("cls");
   cout << "Enter staff name (max. 28 characters): ";
@@ -499,43 +472,6 @@ void Staff::inputStaffDetails()
   cin >> staffSalary;
   generateStaffId();
   cout << "Generated staff ID is " << getId() << ". Please, note it safely as it'll be asked during data modification.";
-}
-
-// Removal of existing staff
-void removeStaff()
-{
-  Staff staffRead;
-  int inputStaffId;
-  short flag = 0;
-  ifstream fileToRead("data/staff.dat", ios::binary);
-  ofstream fileToWrite("data/temp_staff.dat", ios::binary | ios::app);
-  cout << "Enter ID of staff whose data has to be removed: ";
-  cin >> inputStaffId;
-  while (fileToRead.read((char *)&staffRead, sizeof(staffRead)))
-  {
-    if (inputStaffId == staffRead.getId())
-      flag++;
-    else
-      fileToWrite.write((char *)&staffRead, sizeof(staffRead));
-  }
-  if (flag == 0)
-    cout << "Sorry, No Match found.";
-  else
-    cout << "Data of staff " << inputStaffId << " has been removed from file.";
-  fileToRead.close();
-  fileToWrite.close();
-  remove("data/staff.dat");
-  rename("data/temp_staff.dat", "data/staff.dat");
-}
-
-// Adds new staff
-void addStaff()
-{
-  Staff schoolStaff;
-  fstream staffFile("data/staff.dat", ios::in | ios::out | ios::app | ios::binary);
-  schoolStaff.inputStaffDetails();
-  staffFile.write((char *)&schoolStaff, sizeof(schoolStaff));
-  staffFile.close();
 }
 
 // Pay salary to staff.
@@ -580,6 +516,7 @@ void paySalaryToStaff()
   }
   staffFile.close();
 }
+
 void viewStaffData()
 {
   system("cls");
@@ -605,11 +542,12 @@ void viewStaffData()
 // --Everything for staff Ends here--
 
 // --Everything for student academics starts here--
-class Academic : public Student
+class Academic
 {
 private:
   short marks[5], daysPresent, totalWorkingDays;
   float averageMarks, attendancePercentage;
+  // using Student::id;
 
 public:
   Academic()
@@ -625,8 +563,15 @@ public:
     attendancePercentage = 0.0f;
   }
 
+  // int getId() const { Student::getId(); }
   void generateAcademicReport(Student, short &);
-  void generateAttendanceReport(Student, short &);
+  void generateAttendanceReport(Student &, short &);
+  void displayAttendanceReport(Student student)
+  {
+    cout << "Name: " << student.getName();
+    cout << "\nRoll number: " << student.getId();
+    cout << fixed << setprecision(1) << "\nAttendance percentage = " << attendancePercentage;
+  }
 };
 
 // Generates student academic report
@@ -676,7 +621,7 @@ void Academic::generateAcademicReport(Student studentRead, short &flag)
 // Validates roll number, if roll number is found
 // Then total number of working days and days present is asked
 // Attendance % is calculated as: (days present / total no. of days) * 100
-void Academic::generateAttendanceReport(Student studentRead, short &flag)
+void Academic::generateAttendanceReport(Student &studentRead, short &flag)
 {
   system("cls");
   int inputRollNumber = 0;
@@ -730,8 +675,50 @@ void attendanceReport()
   fstream reportFile("data/attendance_report.dat", ios::in | ios::out | ios::app | ios::binary);
   studentAcademics.generateAttendanceReport(studentRead, flag);
   if (flag > 0)
+  {
+    reportFile.write((char *)&studentRead, sizeof(studentRead));
     reportFile.write((char *)&studentAcademics, sizeof(studentAcademics));
+  }
   reportFile.close();
+}
+
+void viewAcademicReports()
+{
+  system("cls");
+  Academic academicRead;
+  Student studentRead;
+  ifstream attendanceFile("data/attendance_report.dat", ios::binary);
+  ifstream academicFile("data/academic_report.dat", ios::binary);
+  int inputRollNumber = 0;
+  short userChoice = 0, flag = 0;
+  cout << "1. View academic report";
+  cout << "\n2. View attendance report";
+  cout << "\nEnter your choice (1 or 2): ";
+  cin >> userChoice;
+  switch (userChoice)
+  {
+  case 1:
+    cout << "\nEnter student roll number whose academic report you want to see: ";
+    cin >> inputRollNumber;
+    break;
+  case 2:
+    cout << "\nEnter student roll number whose attendance report you want to see: ";
+    cin >> inputRollNumber;
+    while (attendanceFile.read((char *)&studentRead, sizeof(studentRead)))
+    {
+      if (inputRollNumber == studentRead.getId())
+      {
+        attendanceFile.read((char *)&academicRead, sizeof(academicRead));
+        ++flag;
+        break;
+      }
+    }
+    if (flag > 0)
+      academicRead.displayAttendanceReport(studentRead);
+    else
+      cout << "No attendance report found for student " << inputRollNumber << ".";
+    break;
+  }
 }
 // --Everything for student academics ends here--
 
@@ -740,6 +727,9 @@ void displayRemoveDataScreen()
 {
   system("cls");
   int userChoice = 0;
+  Student schoolStudent;
+  Teacher schoolTeacher;
+  Staff schoolStaff;
   cout << "1. Remove an existing student";
   cout << "\n2. Remove an existing teacher";
   cout << "\n3. Remove an existing staff";
@@ -748,13 +738,13 @@ void displayRemoveDataScreen()
   switch (userChoice)
   {
   case 1:
-    removeStudent();
+    removeMember("data/student.dat", "data/temp_student.dat", schoolStudent);
     break;
   case 2:
-    removeTeacher();
+    removeMember("data/teacher.dat.dat", "data/temp_teacher.dat", schoolTeacher);
     break;
   case 3:
-    removeStaff();
+    removeMember("data/staff.dat", "data/temp_staff.dat", schoolStaff);
     break;
   }
 }
@@ -764,6 +754,9 @@ void displayAddDataScreen()
 {
   system("cls");
   int userChoice = 0;
+  Student schoolStudent;
+  Teacher schoolTeacher;
+  Staff schoolStaff;
   cout << "1. Add a new student";
   cout << "\n2. Add a new teacher";
   cout << "\n3. Add a new staff";
@@ -772,13 +765,13 @@ void displayAddDataScreen()
   switch (userChoice)
   {
   case 1:
-    addStudent();
+    addMember("data/student.dat", schoolStudent);
     break;
   case 2:
-    addTeacher();
+    addMember("data/teacher.dat", schoolTeacher);
     break;
   case 3:
-    addStaff();
+    addMember("data/staff.dat", schoolStaff);
     break;
   }
 }
@@ -830,7 +823,7 @@ void HomeScreen()
     paySalaryToStaff();
     break;
   case 'j':
-    // View academics report section
+    viewAcademicReports();
     break;
   case 'k':
     academicReport();
